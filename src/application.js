@@ -228,8 +228,6 @@ const Application = new Lang.Class({
         this.parent();
         String.prototype.format = Format.format;
 
-	log('startup');
-
         GtkClutter.init(null);
         EvDoc.init();
         Tweener.init();
