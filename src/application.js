@@ -138,7 +138,7 @@ const Application = new Lang.Class({
             { name: 'open-current',
               callback: this._onActionOpenCurrent,
               window_mode: WindowMode.WindowMode.PREVIEW },
-            { name: 'print-current',
+            { name: 'print-current', accel: '<Primary>p',
               callback: this._onActionPrintCurrent,
               window_mode: WindowMode.WindowMode.PREVIEW },
             { name: 'search',
