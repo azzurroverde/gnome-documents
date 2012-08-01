@@ -103,7 +103,6 @@ const SearchCategoryManager = new Lang.Class({
         // Private category: currently unimplemented
         // category = new SearchCategory(SearchCategoryStock.PRIVATE, _("Private"), 'channel-secure-symbolic');
         // this._categories[category.id] = category;
-
         this.setActiveItem(recent);
     }
 });
@@ -530,7 +529,8 @@ const OverviewSearchbar = new Lang.Class({
         Global.searchController.setString(currentText);
     },
 
-    _onActiveCollectionChanged: function() {
+    _onActiveCollectionChanged: function() {//FIXME: this changes on collection active-change. 
+                                            //Does it assume it goes back from a collection?
         let searchType = Global.searchTypeManager.getActiveItem();
 
         if (Global.searchController.getString() != '' ||

@@ -363,7 +363,7 @@ const PreviewToolbar = new Lang.Class({
             this.widget.add_button(iconName, _("Back"), true);
         backButton.connect('clicked', Lang.bind(this,
             function() {
-                Global.documentManager.setActiveItem(null);
+                Global.documentManager.setActiveItemBack();
             }));
 
         // search button, on the right of the toolbar

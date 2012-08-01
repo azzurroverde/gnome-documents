@@ -189,12 +189,15 @@ const Embed = new Lang.Class({
     },
 
     _onActiveItemChanged: function(manager, doc) {
+        print("in Embed _onActiveItemChanged");
         let newMode = WindowMode.WindowMode.OVERVIEW;
 
         if (doc) {
             let collection = Global.collectionManager.getItemById(doc.id);
-            if (!collection)
+            if (!collection){
                 newMode = WindowMode.WindowMode.PREVIEW;
+                print("PREVIEW");
+            }
         }
 
         Global.modeController.setWindowMode(newMode);

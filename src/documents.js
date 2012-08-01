@@ -633,6 +633,10 @@ const DocCommon = new Lang.Class({
             retval = '{ ?urn nie:isPartOf <' + this.id + '> }';
 
         return retval;
+    },
+    
+    isCollection: function(){
+        return this.collection;
     }
 });
 Signals.addSignalMethods(DocCommon.prototype);
@@ -933,6 +937,8 @@ const DocumentManager = new Lang.Class({
         this._activeDocModel = null;
         this._activeDocModelIds = [];
         this._loaderCancellable = null;
+        this._history = new Array(); //keeps track of navigation within collections
+        this._history.push(null);
 
         Global.changeMonitor.connect('changes-pending',
                                      Lang.bind(this, this._onChangesPending));
@@ -1040,20 +1046,71 @@ const DocumentManager = new Lang.Class({
         this._connectMetadata(docModel);
     },
 
+    /**
+     * Set the current item to the previous one in the history
+     */
+    setActiveItemBack: function() {
+        let doc=null;
+        if(this._history.length > 0){
+            this._history.pop(); //removes the current one
+            doc = this._history.pop(); //get the next one in the stack
+          if(doc)
+            print("pop "+doc.name);//TEMP
+          else
+              print("pop "+doc);
+        };
+        let currentItem = this._activeItem;
+        let currentColl = Global.collectionManager._activeItem;
+        this.setActiveItem(doc);
+        let newColl = Global.collectionManager._activeItem;
+        if(currentItem != this._activeItem && newColl == currentColl){
+            print("emergency emission of active-changed");
+            Global.documentManager.emit('active-changed', newColl);//temp: attemp
+            //Global.collectionManager.emit('active-changed', newColl);//temp: attemp
+        }
+    },
+       
+    
     setActiveItem: function(doc) {
-        if (!this.parent(doc))
-            return;
+        print("setActiveItem Docs "+doc+" "+this);
+        
+        this._history.push(doc);
+        if(doc != null){ 
+            print("push "+doc.name);
+        }else{
+            print("push ... null");
+        }
+        
+        if (!this.parent(doc)) {//if item == this._activeItem if not different
+            print("=="); 
+            
+            if (!doc){
+                Global.collectionManager.setActiveItem(null);
+                return;
+            } 
+            return;            //set activeItem for documentManager
+                                //problem here ...document.manager always puts to null the active document
+        }
+print("not returned, so !=  Stack size= "+this._history.length );//cave: different at the document level, 
+                                                       //but not at the collection level
 
-        // cleanup any state we have for previously loaded model
-        this._clearActiveDocModel();
-
-        if (!doc)
-            return;
-
-        if (doc.collection) {
-            Global.collectionManager.setActiveItem(doc);
+        if(this._history.length<=1 && !doc){
+            Global.collectionManager.setActiveItem(null);//needed it cannot reach if(doc.collection)
             return;
         }
+        
+        if(!doc)
+            return;
+        //FIXME problem: when I come back from a document, collection is not changed, 
+        //so no back button setting
+        print("FIXME");
+        if (doc.collection) {  //  FIXME is this the best place????
+            Global.collectionManager.setActiveItem(doc); //set activeItem for collectionManager
+            return;
+        }
+        
+        // cleanup any state we have for previously loaded model
+        this._clearActiveDocModel();
 
         let recentManager = Gtk.RecentManager.get_default();
         recentManager.add_item(doc.uri);

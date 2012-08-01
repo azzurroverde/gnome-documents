@@ -213,24 +213,58 @@ const OverviewToolbar = new Lang.Class({
                                                Lang.bind(this, this._setToolbarTitle));
     },
 
-    _onActiveCollectionChanged: function() {
-        let item = Global.collectionManager.getActiveItem();
+//    _onActiveCollectionChanged: function() {//FIXME to remove everything
+//        let item = Global.collectionManager.getActiveItem(); //new active item
+//
+//        if (item && !this._collBackButton) { //if collection &&
+//            print("if (item && !this._collBackButton)");
+//            this._collBackButton =
+//                this.widget.add_button('go-previous-symbolic', _("Back"), true);
+//            this._collBackButton.connect('clicked', Lang.bind(this,
+//                function() {
+//                    Global.collectionManager.setActiveItem(null);//FIXME: why null
+//                    //Global.documentManager.setActiveItem(null);
+//                }));
+//        } else if (!item && this._collBackButton) {//FIXME what is item when going back
+//                                                   //from an inner collection?
+//            print("!item && this._collBackButton)");
+//            this._collBackButton.destroy();
+//            this._collBackButton = null;
+//        }
+//        print("else else");
+//        
+//
+//        this._setToolbarTitle();
+//        Global.application.change_action_state('search', GLib.Variant.new('b', false));
+//    },
+    
+    /**
+     * When the active document changes, add or remove the backButton and change the title
+     */
+    _onActiveDocumentChanged: function() {
+      // add backbutton if there are elements in the back history
+      print("_onActiveDocumentChanged in mainToolbar");
+      print("length "+Global.documentManager._history.length);
+      if(Global.documentManager._history.length>1 && !this._collBackButton ){ //FIXME this should be changed when using forward button as well
+          this._collBackButton =
+              this.widget.add_button('go-previous-symbolic', _("Back"), true);
+          this._collBackButton.connect('clicked', Lang.bind(this,
+              function() {
+                  Global.documentManager.setActiveItemBack();//FIXME: check if the previous null does something else
+                  print("backbutton ============================");
+//                  let item = Global.documentManager.getActiveItem();
+//                  print("active now"+item);
+//                  Global.collectionManager.setActiveItem(item);//yes or no?
+              }));
+      } else if(Global.documentManager._history.length<2 && this._collBackButton){
+          this._collBackButton.destroy();
+          this._collBackButton = null;
+      }
+      
+      this._setToolbarTitle();
+      Global.application.change_action_state('search', GLib.Variant.new('b', false));
+  },
 
-        if (item && !this._collBackButton) {
-            this._collBackButton =
-                this.widget.add_button('go-previous-symbolic', _("Back"), true);
-            this._collBackButton.connect('clicked', Lang.bind(this,
-                function() {
-                    Global.collectionManager.setActiveItem(null);
-                }));
-        } else if (!item && this._collBackButton) {
-            this._collBackButton.destroy();
-            this._collBackButton = null;
-        }
-
-        this._setToolbarTitle();
-        Global.application.change_action_state('search', GLib.Variant.new('b', false));
-    },
 
     _populateForOverview: function() {
         this.addSearchButton();
@@ -245,14 +279,22 @@ const OverviewToolbar = new Lang.Class({
         // connect to active collection changes while in this mode
         this._collectionId =
             Global.collectionManager.connect('active-changed',
-                                             Lang.bind(this, this._onActiveCollectionChanged));
+                                             Lang.bind(this, this._onActiveDocumentChanged));
+        
+//        // connect to active documents changes while in this mode
+//        this._collectionId =
+//            Global.documentManager.connect('active-changed',
+//                                             Lang.bind(this, this._onActiveDocumentChanged));
+        
+     
+        
     },
 
     _clearStateData: function() {
         this._collBackButton = null;
 
         if (this._collectionId != 0) {
-            Global.collectionManager.disconnect(this._collectionId);
+            Global.documentManager.disconnect(this._collectionId);
             this._collectionId = 0;
         }
 

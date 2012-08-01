@@ -21,6 +21,7 @@
 
 const Gd = imports.gi.Gd;
 const Gdk = imports.gi.Gdk;
+const Global = imports.global;
 const GObject = imports.gi.GObject;
 const Gtk = imports.gi.Gtk;
 const Pango = imports.gi.Pango;
@@ -28,6 +29,9 @@ const Pango = imports.gi.Pango;
 const Lang = imports.lang;
 const Signals = imports.signals;
 
+/**
+ * Data structure or class for all documents
+ */
 const BaseManager = new Lang.Class({
     Name: 'BaseManager',
 
@@ -59,13 +63,20 @@ const BaseManager = new Lang.Class({
     },
 
     setActiveItem: function(item) {
+        print("setActiveItem Man "+item+" "+this+" current "+this._activeItem);
+        if(this._activeItem)
+            print("current activeItem: "+this._activeItem.name);
+        if(item)
+            print("New activeItem: "+item.name);
         if (item != this._activeItem) {
+            print("emit");
             this._activeItem = item;
             this.emit('active-changed', this._activeItem);
+            print("emitted");
 
             return true;
         }
-
+print("false item equals"+ item+" "+this._activeItem);
         return false;
     },
 
@@ -100,6 +111,7 @@ const BaseManager = new Lang.Class({
     },
 
     clear: function() {
+        print("clear");
         this._items = {};
         this._activeItem = null;
         this.emit('clear');
@@ -175,6 +187,7 @@ const BaseModelColumns = {
     HEADING_TEXT: 2
 };
 
+
 const BaseModel = new Lang.Class({
     Name: 'BaseModel',
 
@@ -214,6 +227,9 @@ const BaseModel = new Lang.Class({
     }
 });
 
+/*
+ * Displays the documents using a GTKTreeView
+ */
 const BaseView = new Lang.Class({
     Name: 'BaseView',
 
