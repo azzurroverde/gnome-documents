@@ -234,6 +234,7 @@ const TrackerController = new Lang.Class({
         }
 
         this._setQueryStatus(true);
+        print("tracker -refresh")
         Global.documentManager.clear();
 
         this._performCurrentQuery();

@@ -1131,6 +1131,7 @@ print("not returned, so !=  Stack size= "+this._history.length );//cave: differe
         if (this._activeDocModel) {
             this._activeDocModelIds.forEach(Lang.bind(this,
                 function(id) {
+                print("id "+id);
                     this._activeDocModel.disconnect(id);
                 }));
 
